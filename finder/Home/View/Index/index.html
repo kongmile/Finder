@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>Document</title>
+   <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/bootstrap.css"></head>
+   <link type="text/css" rel="stylesheet" href="__PUBLIC__/css/fileinput.min.css" />
+   <link rel="stylesheet" href="__PUBLIC__/css/bootstrap-table.css">
+<body>
+   <nav class="navbar navbar-default " role="navigation">
+      <div class="container">
+         <div class="navbar-header">
+            <a class="navbar-brand" href="#">Finder</a>
+         </div>
+         <div>
+<!--             <form class="navbar-form navbar-left pull-right" role="search" method="get" action="__ACTION__">
+               <div class="form-group">
+                  <input type="text" class="form-control" placeholder="Search" id="search" name="id"></div>
+               <button type="submit" class="btn btn-default" id="btn">查询</button>
+            </form> -->
+         </div>
+      </div>
+      <div class="container">
+         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" 
+            aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+               <div class="modal-content">
+                  <div class="modal-header">
+                     <button type="button" class="close" 
+                        data-dismiss="modal" aria-hidden="true">&times;</button>
+                     <h4 class="modal-title" id="myModalLabel">上传文件</h4>
+                     <small>文件名请勿包含中文</small>
+                  </div>
+                  <div class="modal-body" height="100px">
+                        <input id="file-Portrait1" type="file" name="files" multiple="multiple"  uploadExtraData="{id: 100, value: '100 Details'}">
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-default" 
+                        data-dismiss="modal">关闭</button>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div>
+            <ol class="breadcrumb" addr="/" id="addrBar">
+               <li><a href="#" addr="/">根目录</a></li>
+               <li></li>
+            </ol>
+         </div>
+      </div>  
+   </nav>
+   <div class="container">
+      <div class="modal fade" id="folder" tabindex="-1" role="dialog" 
+         aria-labelledby="myModalLabel" aria-hidden="true">
+         <div class="modal-dialog">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <button type="button" class="close" 
+                     data-dismiss="modal" aria-hidden="true">
+                        &times;
+                  </button>
+                  <h4 class="modal-title" id="myModalLabel">
+                     新建文件夹
+                  </h4>
+                  <small>文件名请勿包含中文</small>
+               </div>
+               <div class="modal-body">
+                  <form role="form">
+                     <div class="form-group">
+                        <label for="name">名称</label>
+                        <input type="text" class="form-control" id="foldername" 
+                           placeholder="请输入名称">
+                     </div>
+                  </form>
+                  <div class="alert alert-danger alert-dismissable" id="warn_new">
+                     <button type="button" class="close" data-dismiss="alert" 
+                        aria-hidden="true">
+                        &times;
+                     </button>
+                     错误！请进行一些更改。
+                  </div>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" 
+                     data-dismiss="modal" id="cancel_new">取消
+                  </button>
+                  <button type="button" class="btn btn-primary" id="sure_new">
+                     确定
+                  </button>
+               </div>
+            </div><!-- /.modal-content -->
+         </div>
+      </div><!-- /.modal -->
+      <div id="toolbar" class="btn-group">
+         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" id="uploadBtn"><span class="glyphicon glyphicon-open"></span>上传文件至当前目录</button>
+         <button id="btn_add" type="button" class="btn btn-default" data-toggle="modal" 
+   data-target="#folder">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true">新建文件夹</span>
+         </button>
+         <button id="btn_edit" type="button" class="btn btn-default ">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+            修改
+         </button>
+         <button id="btn_delete" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            删除
+         </button>
+      </div>
+      <table id="tb_departments"></table>
+   </div>
+</body>
+   <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>          <!-- 引入JQuery -->
+   <script type="text/javascript" src="__PUBLIC__/js/bootstrap.min.js"></script>          <!-- 引入bootstrap -->
+   <script src="__PUBLIC__/js/fileinput.min.js"></script>                                 <!-- 引入fileinput插件 -->
+   <script type="text/javascript" src="__PUBLIC__/js/fileinput_locale_zh.js"></script>    <!-- fileinput汉化 -->
+   <script type="text/javascript" src="__PUBLIC__/js/bootstrap-table.js"></script>        <!-- 引入table插件 -->
+   <script type="text/javascript" src="__PUBLIC__/js/bootstrap-table-zh-CN.js"></script>  <!-- table汉化 -->
+   <script type="text/javascript">
+      //fileinput设置
+      function initFileInput(ctrlName, uploadUrl) {    
+          var control = $('#' + ctrlName); 
+
+          control.fileinput({
+              language: 'zh', //设置语言
+              uploadUrl: uploadUrl, //上传的地址
+              showUpload: false, //是否显示上传按钮
+              showCaption: false,//是否显示标题
+              browseClass: "btn btn-primary", //按钮样式             
+              previewFileIcon: "<i class='glyphicon glyphicon-king'></i>", 
+              uploadExtraData: function(){
+                  var data = {
+                     dirname : $("#addrBar").attr("addr"),
+                  }
+                  return data;
+              },
+          });
+      }
+      //初始化fileinput
+         initFileInput("file-Portrait1", "__ROOT__/index.php/Home/Index/upload");
+
+      //上传完成回调函数
+      $('#file-Portrait1').on('fileuploaded', function(event, file, previewId, index, reader) {
+         $('#tb_departments').bootstrapTable('refresh');
+      });
+
+      //table初始化
+      $(function () {
+
+          //1.初始化Table
+          var oTable = new TableInit();
+          oTable.Init();
+
+          //2.初始化Button的点击事件
+          var oButtonInit = new ButtonInit();
+          oButtonInit.Init();
+
+      });
+
+      //建立地址栏
+      function addrBar(path){
+         var addr = '';
+         var $bar = $("#addrBar");
+         $bar.empty();
+         var $a = $("<a href='#' addr='/'>根目录</a>");
+         var $li = $("<li></li>").append($a);
+         $bar.append($li);
+         dirs = path.split('/');
+         len = dirs.length;
+         $.each(dirs, function(index,val){
+            if(val == '')
+               return true;
+            addr = addr + '/' + val;
+            $a = $("<a href='#' addr="+addr+">"+val+"</a>");
+            $li = $("<li></li>").append($a);
+            if(index == len-1){
+               $li = $("<li class='active'>"+val+"</li>");
+            }
+            $bar.append($li);
+         });
+         $bar.append($("<li></li>"));
+         $bar.attr("addr", addr);
+      }
+
+      //地址栏导航
+      $("#addrBar").delegate("a", "click", function(){
+        // "$(this)" is the node that was clicked
+        $("#addrBar").attr("addr",$(this).attr("addr"));
+        $('#tb_departments').bootstrapTable('refresh');
+      });
+
+      var TableInit = function () {
+          var oTableInit = new Object();
+          //初始化Table
+          oTableInit.Init = function () {
+              $('#tb_departments').bootstrapTable({
+                  dataField: "rows",
+                  classes: "table table-hover table-no-bordered",
+                  ajax: oTableInit.ajax,                  //请求方式（*）
+                  toolbar: '#toolbar',                //工具按钮用哪个容器
+                  striped: false,                      //是否显示行间隔色
+                  cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                  pagination: false,                   //是否显示分页（*）
+                  sortable: true,                     //是否启用排序
+                  sortOrder: "asc",                   //排序方式
+                  queryParams: oTableInit.queryParams,//传递参数（*）
+                  sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                  pageNumber:1,                       //初始化加载第一页，默认第一页
+                  pageSize: 10,                       //每页的记录行数（*）
+                  pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                  search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                  strictSearch: true,
+                  showColumns: true,                  //是否显示所有的列
+                  showRefresh: true,                  //是否显示刷新按钮
+                  minimumCountColumns: 2,             //最少允许的列数
+                  clickToSelect: true,                //是否启用点击选中行
+                  height: 500,                        //行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                  uniqueId: "ID",                     //每一行的唯一标识，一般为主键列
+                  showToggle:true,                    //是否显示详细视图和列表视图的切换按钮
+                  cardView: false,                    //是否显示详细视图
+                  detailView: false,                   //是否显示父子表
+                  onClickRow: function(row, $element){
+                     if(row.type == 'dir'){
+                        newaddr = row.dirname.replace('./Public/root','')+ '/' + row.basename.replace("<a href='#'><span class='glyphicon glyphicon-folder-open'></span>&nbsp&nbsp", '').replace("</a>", '');
+                        newaddr = newaddr.replace('//','');
+                        $("#addrBar").attr("addr", newaddr);
+                        $('#tb_departments').bootstrapTable('refresh');
+                     }
+                  },
+                  columns: [{
+                      checkbox: true
+                  }, {
+                      field: 'basename',
+                      title: '文件名',
+                      clickToSelect: false,
+                  }, {
+                      field: 'size',
+                      title: '大小',
+                      clickToSelect: false,
+                  }, {
+                      field: 'mtime',
+                      title: '修改时间',
+                      clickToSelect: false,
+                  }, {
+                      field: 'type',
+                      title: '类型',
+                      visible: false,
+                      clickToSelect: false,
+                  }, {
+                      field: 'dirname',
+                      title: '位置',
+                      visible: false,
+                      clickToSelect: false,
+                  },{
+                      field: 'ext',
+                      title: '扩展名',
+                      visible: false,
+                      clickToSelect: false,
+                  },]
+              });
+          };
+
+          //得到查询的参数
+          oTableInit.queryParams = function (params) {
+              var temp = {   //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+                  limit: params.limit,   //页面大小
+                  offset: params.offset,  //页码
+                  departmentname: $("#txt_search_departmentname").val(),
+                  statu: $("#txt_search_statu").val()
+              };
+              return temp;
+          };
+
+          //自定义ajax方法
+          oTableInit.ajax = function(request) {
+            $.ajax({
+               type: "POST",
+               url: "http://localhost/finder/index.php/Home/Index/ll/",
+               data: {
+                  path: $("#addrBar").attr("addr")
+               },
+               dataType: "json",
+               success: function(data){
+                  $.each(data.rows, function(index, val){
+                     if(val.type == 'file'){
+                        data.rows[index].basename = "<a href='/__ROOT__/"+data.rows[index].dirname+'/'+data.rows[index].basename+"' download><span class='glyphicon glyphicon-file'></span>&nbsp&nbsp" + val.basename + "</a>"; 
+                     }else{
+                        data.rows[index].basename = "<a href='#'><span class='glyphicon glyphicon-folder-open'></span>&nbsp&nbsp" + val.basename + "</a>";
+                     }
+                  });
+                  addrBar(data.path);
+                  request.success({
+                     total: 100,
+                     rows: data.rows
+                  });               
+               },
+               error: function(jqXHR){
+                  alert("发生错误：" + jqXHR.status);
+               },
+            });
+          }
+          return oTableInit;
+      };
+
+
+      var ButtonInit = function () {
+          var oInit = new Object();
+          var postdata = {};
+
+          oInit.Init = function () {
+              //初始化页面上面的按钮事件
+          };
+
+          return oInit;
+      };
+
+      //删除按钮
+      $("#btn_delete").click(function(){
+         sele = $("#tb_departments").bootstrapTable("getSelections");
+         console.log(JSON.stringify(sele));
+         $.ajax({
+               type: "POST",
+               url: "http://localhost/finder/index.php/Home/Index/rm/",
+               data: {
+                  items: JSON.stringify(sele),
+               },
+               dataType: "text",
+               success: function(data){              
+                  $('#tb_departments').bootstrapTable('refresh');          
+               },
+               error: function(jqXHR){
+                  alert("发生错误：" + jqXHR.status);
+               },
+            });
+      });
+
+      $("#btn_add").click(function(){
+         $("#warn_new").hide();
+         $("#foldername").val('');
+      });
+
+      $("#sure_new").click(function(){
+         name = $("#foldername").val();
+         console.log(name);
+         if(name == ''){
+            $("#warn_new").show();
+            $("#warn_new").html("不得为空");
+         }else{
+            dirname = $("#addrBar").attr("addr")
+            $.ajax({
+                  type: "POST",
+                  url: "http://localhost/finder/index.php/Home/Index/newfolder/",
+                  data: {
+                     fname: JSON.stringify(name),
+                     dname: JSON.stringify(dirname),
+                  },
+                  dataType: "json",
+                  success: function(data){
+                     console.log(data);
+                  if(data.success){
+                     $('#tb_departments').bootstrapTable('refresh');
+                     $('#folder').modal('hide');
+                     $("#foldername").val('');
+                     $("#warn_new").hide(); 
+                  }else if(!data.success){
+                     $("#warn_new").html(data.error);
+                     $("#warn_new").show();
+                  }                      
+                  },
+                  error: function(jqXHR){
+                     alert("发生错误：" + jqXHR.status);
+                  },
+               });
+         }
+      });
+
+      
+
+   </script>
+</html>
